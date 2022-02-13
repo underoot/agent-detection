@@ -216,7 +216,7 @@
                         speechSynthesis.speak(speech);
 
                         document.body.classList.add('ino');
-                        document.querySelector('#me').textContent = '😱';
+                        document.querySelector('#me').innerHTML = `😱<br />${detected} признан(а) иностранным агентом`;
                         document.querySelector('#me').style.transform = `scale(${++scale})`;
 
                         detected = null;
@@ -224,6 +224,9 @@
                         document.body.classList.remove('ino');
                         document.querySelector('#me').textContent = '😅';
                     }
+                });
+                rec.addEventListener('start', () => {
+                    document.querySelector('#me').textContent = 'Попробуй только что-нибудь сказать про иноагентов...';
                 });
                 rec.addEventListener('speechstart', (e) => {
                     console.log('start');
@@ -243,10 +246,13 @@
         let max_attempts = 5;
 
         const idx = setInterval(() => {
+            console.log('get voices');
             if (speechSynthesis.getVoices().length || ++attempt >= max_attempts) {
+                console.log('voices inited');
                 clearInterval(idx);
                 start();
-                document.querySelector('#me').textContent = 'Попробуй только что-нибудь сказать про иноагентов...';
+            } else {
+                console.log('voices not inited');
             }
         }, 1000);
     </script>
