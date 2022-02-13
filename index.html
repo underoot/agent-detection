@@ -19,6 +19,8 @@
             text-align: center;
             justify-content: center;
             align-items: center;
+            padding: 24px;
+            box-sizing: border-box;
         }
 
         body.ino {
@@ -241,7 +243,7 @@
         let max_attempts = 5;
 
         const idx = setInterval(() => {
-            if (speechSynthesis.getVoices().length || ++attempts >= max_attempts) {
+            if (speechSynthesis.getVoices().length || ++attempt >= max_attempts) {
                 clearInterval(idx);
                 start();
                 document.querySelector('#me').textContent = 'Попробуй только что-нибудь сказать про иноагентов...';
