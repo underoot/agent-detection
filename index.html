@@ -237,13 +237,16 @@
             }
         }
 
+        let attempt = 0;
+        let max_attempts = 5;
+
         const idx = setInterval(() => {
-            if (speechSynthesis.getVoices().length) {
+            if (speechSynthesis.getVoices().length || ++attempts >= max_attempts) {
                 clearInterval(idx);
                 start();
                 document.querySelector('#me').textContent = 'Попробуй только что-нибудь сказать про иноагентов...';
             }
-        }, 5000);
+        }, 1000);
     </script>
 </body>
 </html>
