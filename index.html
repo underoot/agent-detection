@@ -25,7 +25,7 @@
             background-color: red;
         }
     </style>
-    <div id="me">Попробуй только что-нибудь сказать про иноагентов...</div>
+    <div id="me">Загрузка...</div>
     <script>
         agents = [
             "\"Голос Америки\"",
@@ -184,49 +184,66 @@
     </script>
     <script>
         var scale = 1;
-    try {
-        var SpeechRecognition = window.SpeechRecognition || webkitSpeechRecognition;;
-        var rec = new SpeechRecognition();
-        rec.lang = 'ru-RU';
-        rec.interimResults = false;
-        rec.maxAlternatives = 1;
-        rec.continuous = true;
-        rec.addEventListener('result', (e) => {
-            const last = e.results[e.results.length - 1][0].transcript.toLocaleLowerCase();
-            let detected;
-            console.log('result', last);
+        function start() {
+            try {
+                var SpeechRecognition = window.SpeechRecognition || webkitSpeechRecognition;;
+                var rec = new SpeechRecognition();
+                rec.lang = 'ru-RU';
+                rec.interimResults = false;
+                rec.maxAlternatives = 1;
+                rec.continuous = true;
+                rec.addEventListener('result', (e) => {
+                    const last = e.results[e.results.length - 1][0].transcript.toLocaleLowerCase();
+                    let detected = null;
+                    console.log('result', last);
 
-            agents.forEach(agent => {
-                if (last.includes(agent)) {
-                    const speech = new SpeechSynthesisUtterance(`${agent} признан иностранным агентом`);
-                    const voice = speechSynthesis.getVoices().find(v => v.lang === 'ru-RU');
-                    speech.voice = voice;
-                    speechSynthesis.speak(speech);
-                    detected = true;
-                }
-            });
+                    agents.forEach(agent => {
+                        if (last.includes(agent)) {
+                            detected = agent;
+                        }
+                    });
 
-            if (detected) {
-                document.body.classList.add('ino');
-                document.querySelector('#me').textContent = '😱';
-                document.querySelector('#me').style.transform = `scale(${++scale})`;
-            } else {
-                document.body.classList.remove('ino');
-                document.querySelector('#me').textContent = '😅';
+                    if (detected) {
+                        const speech = new SpeechSynthesisUtterance(`${detected} признан иностранным агентом`);
+                        const voice = [
+                            speechSynthesis.getVoices().find(v => v.lang === 'ru-RU' && v.name.includes('Google')),
+                            speechSynthesis.getVoices().find(v => v.lang === 'ru-RU')
+                        ].find(Boolean);
+                        console.log('use voice', voice);
+                        speech.voice = voice;
+                        speechSynthesis.speak(speech);
+
+                        document.body.classList.add('ino');
+                        document.querySelector('#me').textContent = '😱';
+                        document.querySelector('#me').style.transform = `scale(${++scale})`;
+
+                        detected = null;
+                    } else {
+                        document.body.classList.remove('ino');
+                        document.querySelector('#me').textContent = '😅';
+                    }
+                });
+                rec.addEventListener('speechstart', (e) => {
+                    console.log('start');
+                    document.body.classList.remove('ino');
+                });
+                rec.addEventListener('error', (e) => {
+                    document.querySelector('#me').innerHTML = e.message;
+                });
+
+                rec.start();
+            } catch (e) {
+                document.querySelector('#me').innerHTML = e.message;
             }
-        });
-        rec.addEventListener('speechstart', (e) => {
-            console.log('start');
-            document.body.classList.remove('ino');
-        });
-        rec.addEventListener('error', (e) => {
-            document.querySelector('#me').innerHTML = e.message;
-        });
+        }
 
-        rec.start();
-    } catch (e) {
-        document.querySelector('#me').innerHTML = e.message;
-    }
+        const idx = setInterval(() => {
+            if (speechSynthesis.getVoices().length) {
+                clearInterval(idx);
+                start();
+                document.querySelector('#me').textContent = 'Попробуй только что-нибудь сказать про иноагентов...';
+            }
+        }, 5000);
     </script>
 </body>
 </html>
